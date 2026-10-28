@@ -1,42 +1,31 @@
 import React, { useState } from 'react';
 import './App.css';
 
-const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_BASE_URL = process.env.REACT_APP_API_URL;
 
 export default function App() {
-  const [userInput, setUserInput] = useState('');
   const [x, setX] = useState('');
-  const [fib, setFib] = useState(null);
-  const [fact, setFact] = useState(null);
+  const [y, setY] = useState('');
+  const [sum, setSum] = useState(null);
+  const [prod, setProd] = useState(null);
   const [error, setError] = useState(null);
 
   const calculate = async () => {
-    if (userInput === '' || isNaN(userInput) || userInput < 0) {
-      setError('Please enter a valid nonnegative integer.');
-      return;
-    }
-
+    setSum(null);
+    setProd(null);
     setError(null);
-    setFib(null);
-    setFact(null);
 
     try {
-      const [fibRes, factRes] = await Promise.all([
-        fetch(`${BACKEND_BASE_URL}/fib?x=${userInput}`),
-        fetch(`${BACKEND_BASE_URL}/fact?x=${userInput}`)
-      ]);
+      const url = `${BACKEND_BASE_URL}?x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`;
+      const response = await fetch(url);
+      const data = await response.json();
 
-      const fibData = await fibRes.json();
-      const factData = await factRes.json();
-
-      if (fibData.type === 'success') setFib(fibData.result);
-      else setError('Failed to fetch Fibonacci result.');
-
-      if (factData.type === 'success') setFact(factData.result);
-      else setError('Failed to fetch factorial result.');
-
-      setX(userInput);
-
+      if (data.type === 'success') {
+        setSum(data.sum);
+        setProd(data.prod);
+      } else {
+        setError(data.message);
+      }
     } catch (err) {
       setError('Server error occurred.');
     }
@@ -44,23 +33,33 @@ export default function App() {
 
   return (
     <div>
-      <h2>Calculate Fibonacci and Factorial</h2>
+      <h2>Calculate Sum and Product</h2>
       <input
         type="number"
-        value={userInput}
-        min="0"
-        placeholder="Enter a number"
-        onChange={e => setUserInput(e.target.value)}
+        value={x}
+        placeholder="Enter a number for X"
+        onChange={e => setX(e.target.value)}
       />
+          
       <br />
-      <button onClick={calculate} >
+          
+      <input
+        type="number"
+        value={y}
+        placeholder="Enter a number for Y"
+        onChange={e => setY(e.target.value)}
+      />
+          
+      <br />
+          
+      <button onClick={calculate}>
         Calculate
       </button>
 
       <div className="calcResult">
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        {fib !== null && <p>fib({x}) = <strong>{fib}</strong></p>}
-        {fact !== null && <p>fact({x}) = <strong>{fact}</strong></p>}
+        {sum !== null && <p>X + Y = <strong>{sum}</strong></p>}
+        {prod !== null && <p>X * Y = <strong>{prod}</strong></p>}
       </div>
     </div>
   );
