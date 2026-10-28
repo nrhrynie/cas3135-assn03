@@ -26,6 +26,7 @@ export default function App() {
       } else {
         setError(data.message);
       }
+      
     } catch (err) {
       setError('Server error occurred.');
     }
