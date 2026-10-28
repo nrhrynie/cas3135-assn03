@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 
-const BACKEND_BASE_URL = process.env.REACT_APP_API_URL;
+const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function App() {
   const [x, setX] = useState('');
